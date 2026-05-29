@@ -112,9 +112,15 @@ TEMPLATES = [
 # django-environ parsea automáticamente la URL de conexión
 # Formato: postgres://usuario:password@host:puerto/nombre_db
 DATABASES = {
-    "default": env.db("DATABASE_URL")
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": env("DB_NAME"),
+        "USER": env("DB_USER"),
+        "PASSWORD": env("DB_PASSWORD"),
+        "HOST": "127.0.0.1",
+        "PORT": "5433",
+    }
 }
-
 # ==============================================================================
 # MODELO DE USUARIO PERSONALIZADO
 # ==============================================================================
