@@ -71,7 +71,7 @@ class CreateOrderSerializer(serializers.Serializer):
     shipping_city    = serializers.CharField(max_length=100)
     shipping_country = serializers.CharField(max_length=100)
     coupon_code      = serializers.CharField(max_length=50, required=False, allow_blank=True)
-    notes            = serializers.TextField(required=False, allow_blank=True)
+    notes = serializers.CharField(required=False, allow_blank=True)
 
     def validate_coupon_code(self, value):
         if not value:
@@ -89,4 +89,4 @@ class CreateOrderSerializer(serializers.Serializer):
 class UpdateOrderStatusSerializer(serializers.Serializer):
     """Solo admins pueden cambiar el estado de una orden."""
     status = serializers.ChoiceField(choices=Order.Status.choices)
-    note   = serializers.CharField(required=False, allow_blank=True)
+    note = serializers.CharField(required=False, allow_blank=True)
