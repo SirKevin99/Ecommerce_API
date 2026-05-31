@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 
 from apps.orders.models import Order
 from apps.orders.serializers import (
@@ -19,6 +20,12 @@ class CreateOrderView(APIView):
     """POST → crea una orden desde el carrito del usuario."""
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        request=CreateOrderSerializer,
+        responses={201: OrderDetailSerializer},
+        summary="Crear orden",
+        description="Crea una nueva orden a partir del contenido del carrito del usuario."
+    )
     def post(self, request):
         serializer = CreateOrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -45,6 +52,11 @@ class OrderHistoryView(generics.ListAPIView):
     serializer_class   = OrderListSerializer
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        responses={200: OrderListSerializer(many=True)},
+        summary="Historial de órdenes",
+        description="Retorna el historial de órdenes del usuario autenticado."
+    )
     def get_queryset(self):
         return Order.objects.filter(
             user=self.request.user

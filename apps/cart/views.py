@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
+
 
 from apps.cart.models import Cart, CartItem
 from apps.cart.serializers import (
@@ -20,7 +22,12 @@ class CartView(APIView):
     DELETE → vacía el carrito completo
     """
     permission_classes = [IsAuthenticated]
-
+    @extend_schema(
+        request=None,
+        responses={200: CartSerializer},
+        summary="Ver carrito",
+        description="Retorna el carrito completo del usuario autenticado, incluyendo ítems y detalles de cada variante."
+    )
     def get(self, request):
         cart = CartService.get_or_create_cart(request.user)
         # prefetch para evitar N+1 queries en ítems y variantes
@@ -31,6 +38,12 @@ class CartView(APIView):
         serializer = CartSerializer(cart_qs)
         return Response(serializer.data)
 
+    @extend_schema(
+        request=None,
+        responses={200: None},
+        summary="Vaciar carrito",
+        description="Elimina todos los ítems del carrito del usuario autenticado."
+    )
     def delete(self, request):
         CartService.clear_cart(request.user)
         return Response(
@@ -44,6 +57,13 @@ class CartAddItemView(APIView):
     POST → agrega un ítem al carrito o suma cantidad si ya existe.
     """
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=AddToCartSerializer,
+        responses={201: None},
+        summary="Agregar ítem al carrito",
+        description="Agrega una variante al carrito. Si ya existe, suma la cantidad."
+    )
 
     def post(self, request):
         serializer = AddToCartSerializer(data=request.data)
